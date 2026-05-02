@@ -1,5 +1,5 @@
 import React from "react"
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaSignInAlt, FaUserPlus, FaTachometerAlt, FaGamepad } from "react-icons/fa";
 import logo from "../assets/websitelogo.png";
 
@@ -7,7 +7,9 @@ const Head = () => {
   return (
     <header>
       <div className="header-logo-wrapper">
-        <img src={logo} alt="CodeVibe Logo" title="CodeVibe - Learn. Practice. Master." />
+        <Link to="/" aria-label="Go to homepage" className="logo-link">
+          <img src={logo} alt="CodeVibe Logo" title="CodeVibe - Learn. Practice. Master." />
+        </Link>
       </div>
       
       <div className="header-nav">

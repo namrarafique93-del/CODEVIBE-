@@ -87,6 +87,13 @@ header::before {
   z-index: 1;
 }
 
+.header-logo-wrapper .logo-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+}
+
 /* Logo */
 header img {
   width: 70px;
@@ -97,6 +104,7 @@ header img {
   padding: 0.5rem;
   border-radius: 8px;
   border: 2px solid rgba(255, 77, 109, 0.4);
+  cursor: pointer;
 }
 
 header img:hover {
