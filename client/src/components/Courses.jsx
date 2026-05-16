@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-// Images import (renamed to avoid spaces and ensure consistency)
+// Images import
 import htmlLogo from '../assets/htmlLogo.png';
 import cssLogo from '../assets/cssLogo.png';
 import jsLogo from '../assets/jsLogo.png';
@@ -14,10 +14,106 @@ import expressLogo from '../assets/expressLogo.png';
 import mongoLogo from '../assets/mongoLogo.png';
 
 const Courses = () => {
+
+  const [search, setSearch] = useState("");
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      setUser(JSON.parse(loggedInUser));
+    }
+  }, []);
+
+  const courses = [
+    {
+      title: "HTML Basics",
+      desc: "Start your web development journey with HTML.",
+      img: htmlLogo,
+      link: "/HtmlLesson"
+    },
+    {
+      title: "CSS for Beginner",
+      desc: "Learn how to style beautiful websites.",
+      img: cssLogo,
+      link: "/CssLesson"
+    },
+    {
+      title: "JS for Beginner",
+      desc: "Learn how to give functionality to websites.",
+      img: jsLogo,
+      link: "/JsLesson"
+    },
+    {
+      title: "C Language for You!",
+      desc: "Master the fundamentals of C — the base of all programming.",
+      img: cLogo,
+      link: "/CLesson"
+    },
+    {
+      title: "OOP Concepts",
+      desc: "Think in objects, not just code. Learn how real-world programming works.",
+      img: OOPLogo,
+      link: "/OopLesson"
+    },
+    {
+      title: "Data Structures & Algorithms",
+      desc: "Code faster, run smarter. Build the backbone of efficient programming.",
+      img: dsaLogo,
+      link: "/DsaLesson"
+    },
+    {
+      title: "Node.js",
+      desc: "JavaScript, but on steroids. Learn backend development with ease.",
+      img: nodeLogo,
+      link: "/NodeLesson"
+    },
+    {
+      title: "React.js",
+      desc: "Build once, render everywhere. Master the king of frontend frameworks.",
+      img: reactLogo,
+      link: "/ReactLesson"
+    },
+    {
+      title: "Express.js",
+      desc: "Backend, but lightning fast. Simplify server-side development.",
+      img: expressLogo,
+      link: "/ExpressLesson"
+    },
+    {
+      title: "MongoDB",
+      desc: "Store data like a pro. Learn the NoSQL database of the modern web.",
+      img: mongoLogo,
+      link: "/MongoLesson"
+    }
+  ];
+
+  const filteredCourses = courses.filter((course) =>
+    course.title.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div> 
+    <div>
+      {user && (
+        <h2 style={{ color: 'white', textAlign: 'center', marginTop: '20px' }}>
+          Welcome back, {user.username || user.name || "User"}!
+        </h2>
+      )}
+
       <h2>Available Courses</h2>
+
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Search courses..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="search-input"
+        />
+      </div>
+
       <div className='course-name'>
+
 
         <Link to="/HtmlLesson" className="course-box">
           <img src={htmlLogo} alt="HTML Logo"/>
@@ -37,12 +133,20 @@ const Courses = () => {
           <p>Learn how to give functionality to websites.</p>
         </Link>
 
-         {/* <div className="course-box">
-          <img src={cLogo} alt="C Logo" height="300px" width="200px" />
-          <h3>C Language for You!</h3>
-          <p>Master the fundamentals of C — the base of all programming.</p>
-          <Link to="/CLesson">Start Lesson</Link>
-        </div>  */}
+        {filteredCourses.length > 0 ? (
+
+          filteredCourses.map((course, index) => (
+
+            <div className="course-box" key={index}>
+
+
+              <img
+                src={course.img}
+                alt={course.title}
+                height="300px"
+                width="200px"
+              />
+
 
         <Link to="/OopLesson" className="course-box">
           <img src={OOPLogo} alt="OOP Logo" />
@@ -84,9 +188,29 @@ const Courses = () => {
           <p>“Store data like a pro.” Learn the NoSQL database of the modern web.</p>
         </Link>
 
+              <h3>{course.title}</h3>
+
+              <p>{course.desc}</p>
+
+              <Link to={course.link}>Start Lesson</Link>
+
+            </div>
+
+          ))
+
+        ) : (
+
+          <h3 style={{ color: "white", marginTop: "2rem" }}>
+            No courses found.
+          </h3>
+
+        )}
+
+
       </div>
+
     </div>
-  )
-}
+  );
+};
 
 export default Courses;
