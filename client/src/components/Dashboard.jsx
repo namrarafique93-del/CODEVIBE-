@@ -12,6 +12,8 @@ const Dashboard = () => {
     navigate("/Login");
   };
 
+  // Safely navigates to the detailed course progress report page by defensively
+  // resolving potential casing mismatches (email vs. Email) on the active user object.
   const handleViewReport = (course) => {
     // yaha course select karke report page pe bhejenge
     const email = user?.email || user?.Email || "";
