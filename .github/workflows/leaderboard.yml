@@ -1,67 +1,43 @@
-name: Contributor Leaderboard
+name: Leaderboard
 
 on:
-  push:
-    branches:
-      - main
-
-  pull_request:
-    types:
-      - opened
-      - closed
-      - synchronize
-
   issues:
-    types:
-      - closed
+    types: [opened, closed]
+  pull_request:
+    types: [opened, closed, merged]
 
 jobs:
   update-leaderboard:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # fixes Node.js 20 deprecation
 
-      - name: Extract Contributor Data
-        id: contributor
+      - name: Set Event Variables
+        id: vars
         run: |
-          echo "USERNAME=${{ github.actor }}" >> $GITHUB_ENV
-          echo "EVENT_NAME=${{ github.event_name }}" >> $GITHUB_ENV
-
-      - name: Calculate Points
-        id: points
-        run: |
-          POINTS=0
-
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            POINTS=5
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "USERNAME=${{ github.event.pull_request.user.login }}" >> $GITHUB_ENV
+            echo "EVENT_NAME=pull_request" >> $GITHUB_ENV
+            echo "POINTS=50" >> $GITHUB_ENV
+          else
+            echo "USERNAME=${{ github.event.issue.user.login }}" >> $GITHUB_ENV
+            echo "EVENT_NAME=issue" >> $GITHUB_ENV
+            echo "POINTS=10" >> $GITHUB_ENV
           fi
-
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-
-            if [[ "${{ github.event.action }}" == "opened" ]]; then
-              POINTS=10
-            fi
-
-            if [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
-              POINTS=30
-            fi
-          fi
-
-          if [[ "${{ github.event_name }}" == "issues" ]]; then
-            POINTS=20
-          fi
-
-          echo "POINTS=$POINTS" >> $GITHUB_ENV
 
       - name: Send Data to Backend
+        # Guard: only run if the secret is actually set
+        if: ${{ secrets.LEADERBOARD_API != '' }}
         run: |
-          curl -X POST ${{ secrets.LEADERBOARD_API }} \
-          -H "Content-Type: application/json" \
-          -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
-          -d '{
-            "username": "'"$USERNAME"'",
-            "event": "'"$EVENT_NAME"'",
-            "points": "'"$POINTS"'"
-          }'
+          curl -X POST "$LEADERBOARD_API" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $API_TOKEN" \
+            -d "{\"username\": \"$USERNAME\", \"event\": \"$EVENT_NAME\", \"points\": \"$POINTS\"}" \
+            --fail-with-body
+        env:
+          LEADERBOARD_API: ${{ secrets.LEADERBOARD_API }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
